@@ -4,31 +4,10 @@
 
 
 
-
-
-- GOOS=linux GOARCH=amd64 go build main.go
-
-
 ```
-ws = new WebSocket("ws://localhost:8080/ws");
-
-ws.onopen = function() {
-    console.log("ws is open")
-};
-
-ws.onmessage = function(e) {
-    console.log("recieved message: ", e.data)
-}
-
-ws.send('tom')
-
-ws.onclose = function () {
-    console.log("ws is closed")
-}
+GOOS=linux GOARCH=amd64 go build main.go
+docker build -t bob .
+docker run -p 8090:8090 -p 8080:8080 bob
 ```
 
-### Check what ports in use
-see which ports open with ```netstat -peanut```
-```
-lsof -i -P -n | grep LISTEN | grep -v '8090'
-```
+

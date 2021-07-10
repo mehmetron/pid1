@@ -1,0 +1,12 @@
+### Create bob.go
+POST http://localhost:8080/executeHandler
+Content-Type: application/json
+
+{
+  "operation": "run",
+  "entrypoint": "main.go",
+  "content": "package main\nimport \"fmt\"\nfunc main() {\nfmt.Println(\"something here working\")\n}"
+}
+
+### Get user opened port
+GET http://localhost:8080/portslib
