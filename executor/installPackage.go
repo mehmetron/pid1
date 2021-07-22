@@ -14,3 +14,11 @@ func InstallPackage(pkg string) error {
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
+
+func InitializeModules() error {
+	defer fmt.Println("Done initializing modules...")
+	cmd := exec.Command("go", "mod", "init", "stuff")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}

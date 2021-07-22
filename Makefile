@@ -9,7 +9,7 @@ exec:
 	docker exec -it bobcon /bin/bash
 
 dev:
-	GOOS=linux GOARCH=amd64 go build main.go
+	GOOS=linux GOARCH=amd64 go build -o main *.go
 	docker build -t bob .
 
 

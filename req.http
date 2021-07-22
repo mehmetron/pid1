@@ -1,12 +1,32 @@
-### Create bob.go
+### Create a file
 POST http://localhost:8080/executeHandler
 Content-Type: application/json
 
 {
   "operation": "run",
   "entrypoint": "main.go",
-  "content": "package main\nimport \"fmt\"\nfunc main() {\nfmt.Println(\"something here working\")\n}"
+  "content": "package main\nimport \"fmt\"\nfunc main() {\nfmt.Println(\"something stupid is here\")\n}"
 }
+
+### Create multiple files
+POST http://localhost:8080/executeHandler
+Content-Type: application/json
+
+{
+  "operation": "run",
+  "entrypoint": "main.go",
+  "files": [
+    {
+      "name": "main.go",
+      "content": "package main\nimport \"fmt\"\nfunc main() {\nfmt.Println(\"something stupid is here\")\nbob()\n}"
+    },
+    {
+      "name": "bob.go",
+      "content": "package main\nimport \"fmt\"\nimport \"github.com/brianvoe/gofakeit/v6\"\nfunc bob() {\nfmt.Println(\"printing from bob\", gofakeit.Name())\n}"
+    }
+  ]
+}
+
 
 ### Get user opened port
 GET http://localhost:8080/portslib

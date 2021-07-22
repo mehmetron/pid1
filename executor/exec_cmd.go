@@ -1,10 +1,10 @@
 package executor
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/mehmetron/pid1/filemanager"
 	"github.com/mehmetron/pid1/userPort"
 	"log"
 	"os"
@@ -12,10 +12,19 @@ import (
 	"time"
 )
 
+//type Command struct {
+//	Operation  string `json:"operation"`
+//	Entrypoint string `json:"entrypoint"`
+//	Content    string `json:"content"`
+//}
+
 type Command struct {
 	Operation  string `json:"operation"`
 	Entrypoint string `json:"entrypoint"`
-	Content    string `json:"content"`
+	Files      []struct {
+		Name    string `json:"name"`
+		Content string `json:"content"`
+	} `json:"files"`
 }
 
 func Handler() string {
@@ -84,6 +93,33 @@ func PipingStd() {
 	}
 }
 
+func MultipleFiles(c *Command) {
+	fmt.Println("Creating multiple files")
+
+	for _, file := range c.Files {
+		f, err := os.Create(file.Name)
+		if err != nil {
+			fmt.Println(err)
+		}
+		defer f.Close()
+		_, err = f.WriteString(file.Content)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
+//func ListFileNames(c *Command) []string {
+//	fmt.Println("Listing file names")
+//	//var files []string
+//	files := []string{"run"}
+//
+//	for _, file := range c.Files {
+//		files = append(files, file.Name)
+//	}
+//	return files
+//}
+
 func (c *Command) Running() (string, string, uint16, error) {
 	demoPort := userPort.GetOpenPortLib()
 	packages, err := c.isPackageInstalled()
@@ -93,12 +129,34 @@ func (c *Command) Running() (string, string, uint16, error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 
-	filemanager.CreateFile(c.Entrypoint, c.Content)
+	//filemanager.CreateFile(c.Entrypoint, c.Content)
+	MultipleFiles(c)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "go", "run", c.Entrypoint)
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(path)
+
+	err = InitializeModules()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = InstallPackage("github.com/brianvoe/gofakeit/v6")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	//files := ListFileNames(c)
+	//cmd := exec.CommandContext(ctx, "go", files...)
+
+	// Taken from https://www.reddit.com/r/golang/comments/onjxsn/error_when_trying_to_run_go_project_stat_go_no/
+	cmd := exec.CommandContext(ctx, "bash", "-c", "go run *.go")
+	//cmd := exec.CommandContext(ctx, "go", "run", "*.go")
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	err = cmd.Run()
@@ -113,4 +171,22 @@ func (c *Command) isPackageInstalled() ([]byte, error) {
 	fmt.Println("Check if package installed")
 
 	return []byte{'g', 'o', 'l', 'a', 'n', 'g'}, nil
+}
+
+// ExecStream executes a long executing command and streams the output to a websocket
+func (c *Command) ExecStream() {
+	cmd := exec.Command("go", "run", "main.go")
+	wd, _ := os.Getwd()
+	cmd.Dir = fmt.Sprintf("%s/work", wd)
+
+	stdout, _ := cmd.StdoutPipe()
+	cmd.Start()
+
+	scanner := bufio.NewScanner(stdout)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		m := scanner.Text()
+		fmt.Println(m)
+	}
+	cmd.Wait()
 }

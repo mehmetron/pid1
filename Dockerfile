@@ -1,5 +1,10 @@
 # Dockerfile stolen from here https://stackoverflow.com/questions/53433486/working-on-user-in-dockerfile-and-installing-packages-on-it-permission-denied
-FROM ubuntu:16.04
+FROM ubuntu:20.04
+#FROM ubuntu:18.04
+
+# https://rtfm.co.ua/en/docker-configure-tzdata-and-timezone-during-build/
+ENV TZ=Europe/Kiev
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 #RUN apt-get -y update && \
 #    apt-get -y install golang && \
@@ -27,9 +32,13 @@ RUN /script.sh
 #
 #COPY main langs.json /home/${user}/
 
+
+
 WORKDIR /home
 COPY main langs.json /home/
 
+#RUN mkdir gostuff
+#ENV GOPATH=$PWD/home/gostuff
 
 CMD [ "./main" ]
 

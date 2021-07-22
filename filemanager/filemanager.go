@@ -2,9 +2,15 @@ package filemanager
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 )
+
+type Files []struct {
+	Name    string
+	Content string
+}
 
 func CreateFile(fileName, code string) {
 	fmt.Println("Creating file")
@@ -22,14 +28,30 @@ func CreateFile(fileName, code string) {
 	}
 }
 
-func DeleteFile() {
+func DeleteFile(fileName string) {
 	fmt.Println("Deleting file")
+
+	err := os.Remove(fileName)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
-func ReadFile() {
+func ReadFile(fileName string) (string, error) {
 	fmt.Println("Reading file")
+
+	content, err := ioutil.ReadFile(fileName)
+	text := string(content)
+
+	return text, err
+
 }
 
-func UpdateFile() {
+func UpdateFile(fileName, content string) {
 	fmt.Println("Updating file")
+
+	err := ioutil.WriteFile(fileName, []byte(content), 0)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
