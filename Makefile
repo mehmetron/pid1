@@ -1,21 +1,24 @@
 
-local:
+
+go:
 	GOOS=linux GOARCH=amd64 go build -o main *.go
-	docker rm bobcon
-	docker build -t bob .
-	docker run -p 8090:8090 -p 8080:8080 --name bobcon bob
+	docker rm go-build
+	docker build -t go-build . -f go.Dockerfile
+	docker run --name go-build -p 8080:8080 -p 8090:8090 go-build
 
-exec:
-	docker exec -it bobcon /bin/bash
-
-dev:
+node:
 	GOOS=linux GOARCH=amd64 go build -o main *.go
-	docker build -t bob .
+	docker rm node-build
+	docker build -t node-build . -f node.Dockerfile
+	docker run --name node-build -p 8080:8080 -p 8090:8090 node-build
+
+python:
+	GOOS=linux GOARCH=amd64 go build -o main *.go
+	docker rm python-build
+	docker build -t python-build . -f python.Dockerfile
+	docker run --name python-build -p 8080:8080 -p 8090:8090 python-build
 
 
-penis:
-	echo "buthole is on fiiiiiire"
-	echo "and I can't keep it in\n"
-	echo " my heart is burninninn"
 
-.PHONY: dev local penis exec
+
+.PHONY: go node python
