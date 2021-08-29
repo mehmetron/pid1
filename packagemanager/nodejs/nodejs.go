@@ -78,7 +78,7 @@ var NodejsNPMBackend = util.LanguageBackend{
   "description": "",
   "main": "vite.config.js",
   "scripts": {
-    "dev":"vite --port 8090"
+    "dev":"vite"
   },
   "keywords": [],
   "author": "",

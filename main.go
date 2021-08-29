@@ -1,91 +1,58 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"github.com/mehmetron/pid1/executor"
-	"github.com/mehmetron/pid1/filemanager"
+	"github.com/mehmetron/pid1/handlers"
 	"github.com/mehmetron/pid1/helpers"
-	"github.com/mehmetron/pid1/packagemanager"
+	"github.com/mehmetron/pid1/userPort"
 	"log"
 	"net/http"
 	"time"
 )
 
-type Result struct {
-	Stdout string `json:"stdout"`
-	Stderr string `json:"stderr"`
-}
-
-func execute(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("13 execute handler")
-
-	var command filemanager.Command
-	err := helpers.DecodeJSONBody(w, r, &command)
-	if err != nil {
-		var mr *helpers.MalformedRequest
-		if errors.As(err, &mr) {
-			http.Error(w, mr.Msg, mr.Status)
-		} else {
-			log.Println(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		}
-		return
-	}
-
-	// Setup files
-	err = filemanager.Create(command.Files)
-	if err != nil {
-		fmt.Println("48 ", err)
-	}
-
-	// Installs packages based on .hackr config file
-	//args := []string{"faker 5.5.3"}
-	//for i, s := range command.Packages {
-	//fmt.Println("44 ", s, i)
-	if command.Env == "js" || command.Env == "vitejs" {
-		packagemanager.RunAdd("nodejs", command.Packages, true, "playground")
-	} else if command.Env == "go" {
-		packagemanager.RunAdd("go", command.Packages, true, "playground")
-	} else if command.Env == "python" {
-		packagemanager.RunAdd("python", command.Packages, true, "playground")
-	}
-	//}
-
-	stdout, stderr := "port", ""
-	// Execute code
-	//go func() {
-	//	//executor.CmdToResponse(w, r)
-	//	stdout, stderr, err = executor.Running(command.Env)
-	//	if err != nil {
-	//		fmt.Println("38 ", err)
-	//	}
-	//}()
-
-	time.Sleep(8 * time.Second)
-
-	err = helpers.WriteJSON(w, http.StatusOK, Result{stdout, stderr}, nil)
-	if err != nil {
-		fmt.Println("77 ", err)
-	}
-}
-
-func main() {
-	fmt.Println("hello world")
+func pid1() {
+	fmt.Println("hello world second")
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", executor.ServeHtml)
-	mux.HandleFunc("/ws", executor.CmdToResponse)
+	static := http.FileServer(http.Dir("./static"))
+	mux.Handle("/", static)
+	//mux.HandleFunc("/", handlers.ServeHtml)
+	mux.HandleFunc("/ws", handlers.CmdToResponse)
 
-	mux.HandleFunc("/kill", executor.Kill)
+	mux.HandleFunc("/kill", handlers.Kill)
+	mux.HandleFunc("/port", func(w http.ResponseWriter, r *http.Request) {
+		demoPort := userPort.GetOpenPortLib()
 
-	mux.HandleFunc("/execute", execute)
+		err := helpers.WriteJSON(w, http.StatusOK, demoPort, nil)
+		if err != nil {
+			fmt.Println("77 ", err)
+		}
+	})
 
-	port := ":8080"
+	mux.HandleFunc("/execute", handlers.SetupProject)
+	mux.HandleFunc("/update", handlers.UpdateFilesVite)
+
+	mux.HandleFunc("/websocketcommands", handlers.WebsocketCommands)
+
+	port := ":8100"
 	err := http.ListenAndServe(port, helpers.CorsHeaders(mux))
 	fmt.Printf("Running main server on port %s\n", port)
 	if err != nil {
 		fmt.Printf("97 error %s\n", err)
 	}
+}
 
+func main() {
+
+	go pid1()
+
+	router := http.NewServeMux()
+	router.HandleFunc("/", handlers.ReverseProxy)
+	srv := &http.Server{
+		Handler:      router,
+		Addr:         ":8080",
+		WriteTimeout: 35 * time.Second,
+		ReadTimeout:  35 * time.Second,
+	}
+	log.Fatal(srv.ListenAndServe())
 }

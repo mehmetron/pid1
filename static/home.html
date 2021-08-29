@@ -1,0 +1,12 @@
+<html>
+<body>
+<h1>blah.exe</h1>
+<code></code>
+<script>
+    var ws = new WebSocket("ws://4g1lbfqubq.pid1.localhost:8001/ws?lang=vitejs")
+    ws.onmessage = function(e) {
+        document.querySelector("code").innerHTML += e.data + "<br>"
+    }
+</script>
+</body>
+</html>

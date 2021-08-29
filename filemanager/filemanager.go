@@ -6,10 +6,24 @@ import (
 	"os"
 )
 
+type WsCommand struct {
+	Command  string   `json:"command"`
+	Env      string   `json:"env"`
+	Files    Files    `json:"files"`
+	Packages []string `json:"packages"`
+	Port     string   `json:"port"`
+}
+
 type Command struct {
 	Env      string   `json:"env"`
 	Files    Files    `json:"files"`
 	Packages []string `json:"packages"`
+	Port     string   `json:"port"`
+}
+
+type UpdateFiles struct {
+	Deleted []string `json:"deleted"`
+	Updated Files    `json:"updated"`
 }
 
 type Files []struct {

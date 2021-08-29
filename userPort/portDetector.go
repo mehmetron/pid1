@@ -2,7 +2,6 @@ package userPort
 
 import (
 	"fmt"
-	"os/exec"
 )
 
 func GetOpenPortLib() uint16 {
@@ -19,7 +18,7 @@ func GetOpenPortLib() uint16 {
 	//fmt.Println("tcpsocks 92 ", socks)
 
 	// get only listening TCP sockets
-	tabs, err := TCP6Socks(func(s *SockTabEntry) bool {
+	tabs, err := TCPSocks(func(s *SockTabEntry) bool {
 		return s.State == Listen
 	})
 	if err != nil {
@@ -46,40 +45,40 @@ func GetOpenPortLib() uint16 {
 	return demoPort
 }
 
-func GetOpenPort() string {
-	cmd := exec.Command("netstat", "-peanut")
-	grep := exec.Command("grep", "bob")
-
-	// Get ps's stdout and attach it to grep's stdin.
-	pipe, _ := cmd.StdoutPipe()
-	defer pipe.Close()
-
-	grep.Stdin = pipe
-
-	// Run ps first.
-	cmd.Start()
-
-	// Run and get the output of grep.
-	res, _ := grep.Output()
-
-	fmt.Println(string(res))
-	return string(res)
-
-	//var stdoutBuf, stderrBuf bytes.Buffer
-	//
-	//cmd.Stdout = &stdoutBuf
-	//cmd.Stderr = &stderrBuf
-	//
-	//cmd.Run()
-	//
-	//if ctx.Err() == context.DeadlineExceeded {
-	//	fmt.Println("Command was killed")
-	//	fmt.Fprintf(w, "Command was killed")
-	//	return
-	//}
-	//outStr, errStr := string(stdoutBuf.Bytes()), string(stderrBuf.Bytes())
-	//fmt.Printf("\nout:\n%s\nerr:\n%s\n", outStr, errStr)
-	//
-	//fmt.Fprintf(w, fmt.Sprintf("Output: %s \n Err: %s", outStr, errStr))
-
-}
+//func GetOpenPort() string {
+//	cmd := exec.Command("netstat", "-peanut")
+//	grep := exec.Command("grep", "node")
+//
+//	// Get ps's stdout and attach it to grep's stdin.
+//	pipe, _ := cmd.StdoutPipe()
+//	defer pipe.Close()
+//
+//	grep.Stdin = pipe
+//
+//	// Run ps first.
+//	cmd.Start()
+//
+//	// Run and get the output of grep.
+//	res, _ := grep.Output()
+//
+//	fmt.Println(string(res))
+//	return string(res)
+//
+//	//var stdoutBuf, stderrBuf bytes.Buffer
+//	//
+//	//cmd.Stdout = &stdoutBuf
+//	//cmd.Stderr = &stderrBuf
+//	//
+//	//cmd.Run()
+//	//
+//	//if ctx.Err() == context.DeadlineExceeded {
+//	//	fmt.Println("Command was killed")
+//	//	fmt.Fprintf(w, "Command was killed")
+//	//	return
+//	//}
+//	//outStr, errStr := string(stdoutBuf.Bytes()), string(stderrBuf.Bytes())
+//	//fmt.Printf("\nout:\n%s\nerr:\n%s\n", outStr, errStr)
+//	//
+//	//fmt.Fprintf(w, fmt.Sprintf("Output: %s \n Err: %s", outStr, errStr))
+//
+//}

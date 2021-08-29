@@ -6,7 +6,8 @@ FROM node:16
 
 RUN apt-get -y update && \
     apt-get -y install nano && \
-    apt-get -y install curl
+    apt-get -y install curl && \
+    apt-get -y install net-tools
 
 #WORKDIR /app
 #RUN npm install -g degit

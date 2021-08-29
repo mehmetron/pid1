@@ -10,7 +10,7 @@ node:
 	GOOS=linux GOARCH=amd64 go build -o main *.go
 	docker rm node-build
 	docker build -t node-build . -f node.Dockerfile
-	docker run --name node-build -p 8080:8080 -p 8090:8090 node-build
+	docker run --name node-build -p 8080:8080 node-build
 
 python:
 	GOOS=linux GOARCH=amd64 go build -o main *.go
